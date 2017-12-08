@@ -52,8 +52,8 @@ void VW2002FISWriter::sendMsg(String line1, String line2, bool center) {
   while (line1.length() < 8) line1 += " ";
   while (line2.length() < 8) line2 += " ";
 
-  Serial.println("Line 1: " + line1);
-  Serial.println("Line 2: " + line2);
+  //Serial.println("Line 1: " + line1);
+  //Serial.println("Line 2: " + line2);
 
   // build tx_array
   tx_array[0] = 0x81; // command to set text-display in FIS
@@ -182,7 +182,7 @@ void VW2002FISWriter::FIS_WRITE_send_3LB_msg(char in_msg[]) {
     delayMicroseconds(40);
 
     FIS_WRITE_3LB_sendByte(in_msg[i]);
-    Serial.println(in_msg[i]); ///////////////////////////////////////////////
+    //Serial.println(in_msg[i]); ///////////////////////////////////////////////
     setDataLow();
 
     // Step 10.2 - wait for response from cluster to set ENA-High
@@ -242,8 +242,8 @@ void VW2002FISWriter::sendEnablePulse() {
 } // sendEnablePulse
 
 void VW2002FISWriter::printFreeMem() {
-  Serial.print(F("FIS:freeMemory()="));
-  Serial.println(freeMemory());
+  //Serial.print(F("FIS:freeMemory()="));
+  //Serial.println(freeMemory());
 }
 
 // Send byte out on 3LB port to instrument cluster
@@ -287,7 +287,7 @@ void VW2002FISWriter::setDataLow() {
 
 uint8_t VW2002FISWriter::checksum( volatile uint8_t in_msg[]) {
   uint8_t crc = in_msg[0];
-  Serial.println(in_msg[1]);
+  //Serial.println(in_msg[1]);
   for (int i = 1; i < in_msg[1] + 1; i++)
   {
     crc ^= in_msg[i];

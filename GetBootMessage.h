@@ -11,6 +11,7 @@
 extern int CurrentHour;
 extern String GreetingMessage1;
 extern String GreetingMessage2;
+extern class VW2002FISWriter fisWriter;
 
 class GetBootMessage
 {

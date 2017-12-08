@@ -20,7 +20,7 @@ RTC_Millis rtc;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 String CurrentMonth = "";
 String CurrentDay = "";
-String CombinedMonthDay = "";
+String CombinedDayMonth = "";
 
 #define FIS_CLK 13  // - Arduino 13 - PB5
 #define FIS_DATA 11 // - Arduino 11 - PB3
@@ -29,6 +29,9 @@ String CombinedMonthDay = "";
 void GetBootMessage::returnBootMsg()
 {
   //Get the current hour.  Minute not required.
+  //Failsafe incase time can't be calculated
+  GreetingMessage1 = "WELCOME";
+  GreetingMessage2 = "ADAM!";
 
   rtc.begin(DateTime(F(__DATE__), F(__TIME__)));
 
@@ -36,9 +39,9 @@ void GetBootMessage::returnBootMsg()
   CurrentMonth = String(now.month());
   CurrentDay = String(now.day());
   CurrentHour = now.hour();
-  CombinedMonthDay = CurrentDay + CurrentMonth;
+  CombinedDayMonth = CurrentDay + CurrentMonth;
 
-  switch (CombinedMonthDay.toInt()) {
+  switch (CombinedDayMonth.toInt()) {
     //C drops leading zero.  Compare for special dates.  MonthDay.  So Jan 01 is 101, Jan 02 is 102
     //Happy new year!
     case 101:
@@ -47,7 +50,7 @@ void GetBootMessage::returnBootMsg()
       break;
 
     //Christmas
-    case 1225:
+    case 2512:
       GreetingMessage1 = "MERRY XMAS";
       GreetingMessage2 = "ADAM!";
       break;
@@ -89,5 +92,16 @@ void GetBootMessage::returnBootMsg()
 
 void GetBootMessage::displayBootMsg()
 {
+  //Serial.println("Display welcome message");
+  //Init the display and clear the screen
+  fisWriter.FIS_init();
+  delay(200);
+  fisWriter.init_graphic();
+  delay(300);
 
+  //fisWriter.write_graph("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+  //Display the greeting.  40/48 is the height.
+  fisWriter.write_text_full(0, 40, GreetingMessage1);
+  fisWriter.write_text_full(0, 48, GreetingMessage2);
+  delay(3000);
 }
