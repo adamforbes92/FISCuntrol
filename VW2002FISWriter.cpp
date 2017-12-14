@@ -91,8 +91,8 @@ void VW2002FISWriter::write_graph(String line) {
   tx_array[0] = 0x55; // command to set text-display in FIS
   tx_array[1] = line.length() + 4; // Length of this message (command and this length not counted
   tx_array[2] = 0x01; // unsure what this is
-  tx_array[3] = 1;
-  tx_array[4] = 1;
+  tx_array[3] = 58; //start x output co-ord (top left?)
+  tx_array[4] = 1; //start y co-ord (bottom right?)
   line.toCharArray(&tx_array[5], line.length() + 1);
   tx_array[line.length() + 5] = (char)checksum((uint8_t*)tx_array);
   sendRawMsg(tx_array);

@@ -1,0 +1,118 @@
+1, timing
+2, knock1 - group 20 (field 1)
+3, knock2 - group 20 (field 2)
+4, knock3 - group 20 (field 3)
+5, knock4 - group 20 (field 4)
+6, lamda req - group 31
+7, lambda act - group 31
+8, boost act - group 114 (field 3)
+9, boost req - group 114  (field 2?  Maybe 1)
+10, n75 group 114 (field 4)
+11, AIT
+
+2, 3, 11, 14, 20, 31, 32, 114, 115
+
+011,1,Engine Speed,(G28)
+011,2,Coolant,Temperature (G62),Range: -40.5...+135.0 °C\nSpecification (Warm): 80.0...115.0 °C
+011,3,Intake Air,Temperature (G42),Range: -40.5...+135.0 °C\nSpecification (Warm): < +80.0 °C (max. +115.0 °C)
+011,4,Ignition,Timing Angle
+
+014,0,Ignition (Misfire Recognition - Total)
+014,1,Engine Speed,(G28)
+014,2,Engine Load
+014,3,Misfire,(total),Specification: 0
+014,4,Misfire,Recognition,Range: Disabled/Enabled
+
+020,0,Ignition (Timing Retardation Cylinder 1-4)
+020,1,Timing Retardation,Cylinder 1
+020,2,Timing Retardation,Cylinder 2
+020,3,Timing Retardation,Cylinder 3
+020,4,Timing Retardation,Cylinder 4
+
+031,0,Lambda Control
+031,1,Lambda Control,Bank 1 (actual)
+031,2,Lambda Control,Bank 1 (specified)
+;
+032,0,Lambda Control (Mixture Adaptation)
+032,1,Adaptation (Idle),Bank 1 Sensor 1
+032,2,Adaptation (Partial),Bank 1 Sensor 1
+
+114,0,Boost Pressure Control
+114,1,Engine Load,(specified)
+114,2,Engine Load,(spec. corrected)
+114,3,Engine Load,(actual)
+114,4,Wastegate (N75),Duty Cycle
+;
+115,0,Boost Pressure Control
+115,1,Engine Speed,(G28)
+115,2,Engine Load
+115,3,Boost Pressure,(specified)
+115,4,Boost Pressure,(actual)
+
+
+
+
+if (currentGroup == 999)
+        {
+          Serial.println("Current group is 999");
+          //Custom groups can be adjusted here.
+          /*
+              1  Timing        AIT        Group 11, Field 4           Group 11, Field 3
+              2  Knock1        Knock2     Group 20, Field 1           Group 20, Field 2
+              3  Knock3        Knock4     Group 20, Field 3           Group 20, Field 4
+              4  Boost Desired            Group 114, Field 2
+              5  Boost Actual             Group 114, Field 3
+              6  WGDC                     Group 114, Field 4
+              7  Fuel Desired             Group 31, Field 1
+              8  Fuel Actual              Group 31, Field 2
+          */
+
+          SENSOR resultBlockCustom999_1[maxSensors];
+          nSensors = kwp.readBlock(currentModule->addr, currentModule->groups[11], maxSensors, resultBlockCustom999_1);
+
+          SENSOR resultBlockCustom999_2[maxSensors];
+          nSensors = kwp.readBlock(currentModule->addr, currentModule->groups[20], maxSensors, resultBlockCustom999_2);
+
+          SENSOR resultBlockCustom999_3[maxSensors];
+          nSensors = kwp.readBlock(currentModule->addr, currentModule->groups[31], maxSensors, resultBlockCustom999_3);
+
+          SENSOR resultBlockCustom999_4[maxSensors];
+          nSensors = kwp.readBlock(currentModule->addr, currentModule->groups[114], maxSensors, resultBlockCustom999_4);
+
+          if ((resultBlockCustom999_1[currentSensor].value != "") && (resultBlockCustom999_2[currentSensor].value != "") && (resultBlockCustom999_3[currentSensor].value != "") && (resultBlockCustom999_4[currentSensor].value != ""))
+          {
+            //Timing        AIT        Group 11, Field 4           Group 11, Field 3
+            customLine1Group999 = resultBlockCustom999_1[4].value + " " + resultBlockCustom999_1[4].units + " " + resultBlockCustom999_1[3].value + " " + resultBlockCustom999_1[3].units;
+            
+            customLine2Group999 = resultBlockCustom999_2[1].value + " " + resultBlockCustom999_2[1].units + " " + resultBlockCustom999_2[2].value + " " + resultBlockCustom999_2[2].units;
+            customLine3Group999 = resultBlockCustom999_2[3].value + " " + resultBlockCustom999_2[3].units + " " + resultBlockCustom999_1[4].value + " " + resultBlockCustom999_1[4].units;
+            
+            customLine4Group999 = resultBlockCustom999_4[2].value + " " + resultBlockCustom999_4[2].units;
+            customLine5Group999 = resultBlockCustom999_4[3].value + " " + resultBlockCustom999_4[3].units;
+            customLine6Group999 = resultBlockCustom999_4[4].value + " " + resultBlockCustom999_4[4].units;
+            
+            customLine7Group999 = resultBlockCustom999_3[1].value + " " + resultBlockCustom999_3[1].units;
+            customLine8Group999 = resultBlockCustom999_3[2].value + " " + resultBlockCustom999_3[2].units;
+          }
+
+          SENSOR resultBlock[maxSensors];
+          nSensors = kwp.readBlock(currentModule->addr, currentModule->groups[currentGroup], maxSensors, resultBlock);
+
+          if (resultBlock[currentSensor].value != "")
+          {
+            fisWriter.write_text_full(0, 8, "CUSTOM BLOCK");
+            fisWriter.write_text_full(0, 16, "FUEL, BOOST, TIMING");
+
+            fisWriter.write_text_full(0, 24, customLine1Group999);
+            fisWriter.write_text_full(0, 32, customLine2Group999);
+            fisWriter.write_text_full(0, 40, customLine3Group999);
+            fisWriter.write_text_full(0, 48, customLine4Group999);
+            fisWriter.write_text_full(0, 56, customLine5Group999);
+            fisWriter.write_text_full(0, 64, customLine6Group999);
+            fisWriter.write_text_full(0, 72, customLine7Group999);
+            fisWriter.write_text_full(0, 80, customLine8Group999);
+          }
+          lastRefreshTime = now;
+        }
+        else
+        {

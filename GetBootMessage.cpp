@@ -105,3 +105,16 @@ void GetBootMessage::displayBootMsg()
   fisWriter.write_text_full(0, 48, GreetingMessage2);
   delay(3000);
 }
+
+void GetBootMessage::displayBootImage()
+{
+  //Serial.println("Display welcome message");
+  //Init the display and clear the screen
+  fisWriter.FIS_init();
+  delay(200);
+  fisWriter.init_graphic();
+  delay(300);
+
+  fisWriter.write_graph("0F0F0F");
+  delay(3000);
+}
