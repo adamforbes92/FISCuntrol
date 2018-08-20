@@ -52,9 +52,6 @@ void VW2002FISWriter::sendMsg(String line1, String line2, bool center) {
   while (line1.length() < 8) line1 += " ";
   while (line2.length() < 8) line2 += " ";
 
-  //Serial.println("Line 1: " + line1);
-  //Serial.println("Line 2: " + line2);
-
   // build tx_array
   tx_array[0] = 0x81; // command to set text-display in FIS
   tx_array[1] = 18; // Length of this message (command and this length not counted
@@ -62,7 +59,7 @@ void VW2002FISWriter::sendMsg(String line1, String line2, bool center) {
 
   line1.toCharArray(&tx_array[3], 9);
   if (tx_array[10] == 32 && !center) tx_array[10] = 28; // set last char to 28 if not center
-  
+
   line2.toCharArray(&tx_array[11], 9);
   if (tx_array[18] == 32 && !center) tx_array[18] = 28; // set last char to 28 if not center
   tx_array[19] = (char)checksum((uint8_t*)tx_array);
@@ -73,7 +70,6 @@ void VW2002FISWriter::sendMsg(String line1, String line2, bool center) {
 void VW2002FISWriter::write_text_full(int x, int y, String line) {
   line.toUpperCase();
 
-  //while (line.length() < 14) line += " ";
   tx_array[0] = 0x56; // command to set text-display in FIS
   tx_array[1] = line.length() + 4; // Length of this message (command and this length not counted
   tx_array[2] = 0x26; // unsure what this is (was 26)
@@ -84,18 +80,35 @@ void VW2002FISWriter::write_text_full(int x, int y, String line) {
   sendRawMsg(tx_array);
 }
 
-void VW2002FISWriter::write_graph(String line) {
-  line.toUpperCase();
-
-  //while (line.length() < 14) line += " ";
-  tx_array[0] = 0x55; // command to set text-display in FIS
-  tx_array[1] = line.length() + 4; // Length of this message (command and this length not counted
-  tx_array[2] = 0x01; // unsure what this is
-  tx_array[3] = 58; //start x output co-ord (top left?)
-  tx_array[4] = 1; //start y co-ord (bottom right?)
-  line.toCharArray(&tx_array[5], line.length() + 1);
-  tx_array[line.length() + 5] = (char)checksum((uint8_t*)tx_array);
+void VW2002FISWriter::GraphicOut(uint8_t x, uint8_t y, uint16_t size, uint8_t data[], uint8_t mode, uint8_t offset) {
+  uint8_t myArray[size + 5];
+  tx_array[0] = 0x55;
+  tx_array[1] = size + 4;
+  tx_array[2] = 0x81;
+  tx_array[3] = x;
+  tx_array[4] = y;
+  for (uint16_t a = 0; a < size; a++) {
+    tx_array[a + 5] = data[offset + a];
+  }
+  Serial.println(size);
+  tx_array[offset+size+5] = (char)checksum((uint8_t*)tx_array);
   sendRawMsg(tx_array);
+}
+
+//fisWriter.GraphicFromArray(0,70,64,16,QBSW,1);
+void VW2002FISWriter::GraphicFromArray(uint8_t x, uint8_t y, uint8_t sizex, uint8_t sizey, uint8_t data[], uint8_t mode) {
+  // 22x32bytes = 704
+  uint8_t packet_size = (sizex + 7) / 8; // how much byte per packet
+  //Serial.println(packet_size);
+  for (uint8_t line = 0; line < sizey; line++) {
+    //Serial.println(line);
+    uint8_t _data[packet_size];
+    for (uint8_t i = 0; i < packet_size; i++) {
+      _data[i] = data[(line * packet_size) + i];
+    }
+    GraphicOut(x, line + y, packet_size, _data, mode, 0);
+    delay(5);
+  }
 }
 
 void VW2002FISWriter::init_graphic() {
@@ -182,7 +195,7 @@ void VW2002FISWriter::FIS_WRITE_send_3LB_msg(char in_msg[]) {
     delayMicroseconds(40);
 
     FIS_WRITE_3LB_sendByte(in_msg[i]);
-    //Serial.println(in_msg[i]); ///////////////////////////////////////////////
+    ////Serial.println(in_msg[i]); ///////////////////////////////////////////////
     setDataLow();
 
     // Step 10.2 - wait for response from cluster to set ENA-High
@@ -243,7 +256,7 @@ void VW2002FISWriter::sendEnablePulse() {
 
 void VW2002FISWriter::printFreeMem() {
   //Serial.print(F("FIS:freeMemory()="));
-  //Serial.println(freeMemory());
+  ////Serial.println(freeMemory());
 }
 
 // Send byte out on 3LB port to instrument cluster
@@ -287,7 +300,7 @@ void VW2002FISWriter::setDataLow() {
 
 uint8_t VW2002FISWriter::checksum( volatile uint8_t in_msg[]) {
   uint8_t crc = in_msg[0];
-  //Serial.println(in_msg[1]);
+  ////Serial.println(in_msg[1]);
   for (int i = 1; i < in_msg[1] + 1; i++)
   {
     crc ^= in_msg[i];
@@ -297,5 +310,6 @@ uint8_t VW2002FISWriter::checksum( volatile uint8_t in_msg[]) {
 
   return crc;
 }
+
 
 

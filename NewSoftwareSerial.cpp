@@ -393,7 +393,7 @@ void NewSoftwareSerial::begin(long speed)
       break;
     }
   }
-  //Serial.println(_rx_delay_stopbit);
+  ////Serial.println(_rx_delay_stopbit);
 
   // Set up RX interrupts, but only if we have a valid RX baud rate
   if (_rx_delay_stopbit)
@@ -518,4 +518,5 @@ int NewSoftwareSerial::peek()
   // Read from "head"
   return _receive_buffer[_receive_buffer_head];
 }
+
 

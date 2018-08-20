@@ -28,7 +28,9 @@ class VW2002FISWriter
     void init_graphic();
     void remove_graphic();
     void write_text_full(int x, int y, String line);
-    void write_graph(String line);
+
+    void GraphicFromArray(uint8_t x, uint8_t y, uint8_t sizex, uint8_t sizey, uint8_t data[], uint8_t mode);
+    void GraphicOut(uint8_t x, uint8_t y, uint16_t size, uint8_t data[], uint8_t mode, uint8_t offset);
 
     void sendMsg(String line1, String line2, bool center = true);
     void sendMsg(char msg[]);
@@ -57,4 +59,5 @@ class VW2002FISWriter
 };
 
 #endif
+
 

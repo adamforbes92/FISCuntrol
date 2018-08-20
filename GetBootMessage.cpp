@@ -4,117 +4,149 @@
     Friday
     Normal (Good morning, good evening...)
 */
-
 #include "GetBootMessage.h"
-#include "TimeLib.h"
-#include "Wire.h"
 #include "VW2002FISWriter.h"
+#include "Wire.h"
 #include "RTClib.h"
+#include "VWbitmaps.h"
 
-#if defined(ARDUINO_ARCH_SAMD)
-// for Zero, output on USB Serial console, remove line below if using programming port to program the Zero!
-//#define Serial SerialUSB
-#endif
+RTC_DS1307 rtc_time;    //  Real Time Clock DS1307 for actual date/time functions
 
-RTC_Millis rtc;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 String CurrentMonth = "";
 String CurrentDay = "";
+String CurrentMinute = "";
 String CombinedDayMonth = "";
+byte currentHour = 0;
 
-#define FIS_CLK 13  // - Arduino 13 - PB5
-#define FIS_DATA 11 // - Arduino 11 - PB3
-#define FIS_ENA 8 // - Arduino 8 - PB0
-
-void GetBootMessage::returnBootMsg()
+void GetBootMessage::returnBootMessage()
 {
   //Get the current hour.  Minute not required.
   //Failsafe incase time can't be calculated
-  GreetingMessage1 = "WELCOME";
-  GreetingMessage2 = "ADAM!";
+  GreetingMessage3 = "WELCOME";
+  GreetingMessage4 = "ADAM!";
 
-  rtc.begin(DateTime(F(__DATE__), F(__TIME__)));
+  rtc_time.begin();
+  //rtc_time.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
-  DateTime now = rtc.now();
-  CurrentMonth = String(now.month());
-  CurrentDay = String(now.day());
-  CurrentHour = now.hour();
+  DateTime now_time = rtc_time.now();
+
+  CurrentMonth = String(now_time.month(), DEC);
+  CurrentDay = String(now_time.day(), DEC);
+  CurrentMinute = String(now_time.minute(), DEC);
+
+  Serial.println(CurrentMinute + String(now_time.second()));
+
+  currentHour = now_time.hour(), DEC;
   CombinedDayMonth = CurrentDay + CurrentMonth;
 
   switch (CombinedDayMonth.toInt()) {
-    //C drops leading zero.  Compare for special dates.  MonthDay.  So Jan 01 is 101, Jan 02 is 102
-    //Happy new year!
-    case 101:
-      GreetingMessage1 = "HAPPY NEW YEAR";
-      GreetingMessage2 = "ADAM!";
-      break;
-
-    //Christmas
-    case 2512:
-      GreetingMessage1 = "MERRY XMAS";
-      GreetingMessage2 = "ADAM!";
-      break;
-
+    //C drops leading zero.  Compare for special dates.  DayMonth.  So Jan 01 is 11, Jan 02 is 12
     //Birthday
-    case 1405:
-      GreetingMessage1 = "HAPPY BIRTHDAY";
-      GreetingMessage2 = "ADAM!";
+    case 2512:
+      GreetingMessage3 = "MERRY";
+      GreetingMessage4 = "CHRISTMAS!";
+
+      GreetingMessage6 = ":)";
+      break;
+
+    case 11:
+      GreetingMessage3 = "HAPPY NEW";
+      GreetingMessage4 = "YEAR ADAM!";
+
+      GreetingMessage6 = ":)";
+      break;
+
+    case 145:
+      GreetingMessage3 = "HAPPY BIRTHDAY";
+      GreetingMessage4 = "ADAM!";
+
+      GreetingMessage6 = ":)";
+      break;
+
+    case 205:
+      GreetingMessage3 = "ENJOY THE";
+      GreetingMessage4 = "WEDDING!";
+
+      GreetingMessage6 = ":)";
       break;
 
     //Today (for debug!)
-    case 312:
-      GreetingMessage1 = "HAPPY BIRTHDAY";
-      GreetingMessage2 = "ADAM!";
+    case 255:
+      GreetingMessage3 = "ENJOY";
+      GreetingMessage4 = "VOLKSFLING!";
+
+      GreetingMessage6 = ":)";
+      break;
+
+    //Today (for debug!)
+    case 227:
+      GreetingMessage3 = "HAPPY";
+      GreetingMessage4 = "ANNIVERSARY!";
+
+      GreetingMessage6 = ":)";
+      break;
+
+    //Today (for debug!)
+    case 318:
+      GreetingMessage3 = "ENJOY";
+      GreetingMessage4 = "EDITION 38!";
+
+      GreetingMessage6 = ":)";
       break;
 
     //Default (if not special day!)
     default:
-      if (CurrentHour > 00 && CurrentHour < 12)
+      if (currentHour >= 0 && currentHour < 12)
       {
-        GreetingMessage1 = "GOOD MORNING";
-        GreetingMessage2 = "ADAM!";
+        GreetingMessage3 = "GOOD MORNING";
+        GreetingMessage4 = "ADAM!";
       }
 
-      if (CurrentHour >= 12 && CurrentHour < 18)
+      if (currentHour >= 12 && currentHour < 18)
       {
-        GreetingMessage1 = "GOOD AFTERNOON";
-        GreetingMessage2 = "ADAM!";
+        GreetingMessage3 = "GOOD AFTERNOON";
+        GreetingMessage4 = "ADAM!";
       }
 
-      if (CurrentHour >= 18 && CurrentHour < 24)
+      if (currentHour >= 18 && currentHour < 24)
       {
-        GreetingMessage1 = "GOOD EVENING";
-        GreetingMessage2 = "ADAM!";
+        GreetingMessage3 = "GOOD EVENING";
+        GreetingMessage4 = "ADAM!";
       }
       break;
   }
 }
 
-void GetBootMessage::displayBootMsg()
+void GetBootMessage::displayBootMessage()
 {
-  //Serial.println("Display welcome message");
   //Init the display and clear the screen
   fisWriter.FIS_init();
   delay(200);
   fisWriter.init_graphic();
-  delay(300);
 
-  //fisWriter.write_graph("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
   //Display the greeting.  40/48 is the height.
-  fisWriter.write_text_full(0, 40, GreetingMessage1);
-  fisWriter.write_text_full(0, 48, GreetingMessage2);
-  delay(3000);
+  fisWriter.write_text_full(0, 24, GreetingMessage1);
+  fisWriter.write_text_full(0, 32, GreetingMessage2); delay(5);
+  fisWriter.write_text_full(0, 40, GreetingMessage3); delay(5);
+  fisWriter.write_text_full(0, 48, GreetingMessage4); delay(5);
+  fisWriter.write_text_full(0, 56, GreetingMessage5); delay(5);
+  fisWriter.write_text_full(0, 64, GreetingMessage6); delay(5);
+  fisWriter.write_text_full(0, 72, GreetingMessage7); delay(5);
+  fisWriter.write_text_full(0, 80, GreetingMessage8); delay(5);
+  delay(3500);
 }
 
 void GetBootMessage::displayBootImage()
 {
-  //Serial.println("Display welcome message");
   //Init the display and clear the screen
   fisWriter.FIS_init();
   delay(200);
   fisWriter.init_graphic();
-  delay(300);
+  //delay(5);
 
-  fisWriter.write_graph("0F0F0F");
-  delay(3000);
+  //Display the greeting.  40/48 is the height.
+  fisWriter.GraphicFromArray(0, 0, 64, 65, Q, 1);
+  fisWriter.GraphicFromArray(0, 70, 64, 16, QBSW, 1);
+  delay(3500);
 }

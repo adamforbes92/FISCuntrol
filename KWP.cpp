@@ -138,10 +138,10 @@ SENSOR KWP::getSensorData(byte k, byte a, byte b) {
       case 24: v=0.001*a*b;           units=F("A");break;
       case 25: v=(b*1.421)+(a/182);   units=F("g/s");break;
       case 26: v=float(b-a);          units=F("C");break;
-      case 27: v=abs(b-128)*0.01*a;   units=F("Deg");break; //case 27: v=abs(b-128)*0.01*a;   units=F("°");break;
+      case 27: v=abs(b-128)*0.01*a;   units=F("Deg");break; //case 27: v=abs(b-128)*0.01*a;   units=F("Â°");break;
       case 28: v=float(b-a);          units=F(" ");break;
       case 30: v=b/12*a;              units=F("Deg k/w");break;
-      case 31: v=b/2560*a;            units=F("°C");break;
+      case 31: v=b/2560*a;            units=F("Â°C");break;
       case 33: v=100*b/a;             units=F("%");break; //case 33: v=100*b/a;             units=F("%%");break;
       case 34: v=(b-128)*0.01*a;      units=F("kW");break;
       case 35: v=0.01*a*b;            units=F("l/h");break;
@@ -223,8 +223,8 @@ String KWP::getBlockDesc(uint8_t addr, int block){
   else if(addr == ADR_Engine){
     switch (block){
       case 1: blockDescs=F("Engine Speed,Coolant,Lambda Control,Basic Setting"); break;
-      case 2: blockDescs=F("Engine  speed,Load,Inj Time,MAF"); break; // case 2: blockDescs=F("Engine Speed,Engine Load,Injection Timing,Mass Air Flow"); break;
-      case 3: blockDescs=F("Engine  speed,MAF,Throttle,Ignition"); break; // case 3: blockDescs=F("Engine Speed,Mass Air Flow,Throttle Valve Angle,Ignition"); break;
+      case 2: blockDescs=F("Engine Speed,Load,Inj Time,MAF"); break; // case 2: blockDescs=F("Engine Speed,Engine Load,Injection Timing,Mass Air Flow"); break;
+      case 3: blockDescs=F("Engine Speed,MAF,Throttle,Ignition"); break; // case 3: blockDescs=F("Engine Speed,Mass Air Flow,Throttle Valve Angle,Ignition"); break;
       case 4: blockDescs=F("Engine Speed,Battery Voltage,Coolant,Intake Air"); break;
       case 5: blockDescs=F("Engine Speed,Engine Load,Vehicle Speed,Load Status"); break;
       case 6: blockDescs=F("Engine Speed,Engine Load,Intake Air,Altitude"); break;
@@ -234,14 +234,14 @@ String KWP::getBlockDesc(uint8_t addr, int block){
       case 15: blockDescs=F("Misfire1,Misfire2,Misfire3,Misfire4"); break; // case 15: blockDescs=F("Misfire Counter,Misfire Counter,Misfire Counter,Misfire"); break;
       case 16: blockDescs=F("Misfire Counter,Misfire"); break;
       case 18: blockDescs=F("Lower,Upper,Lower,Upper"); break;
-      case 20: blockDescs=F("TimReta1,TimReta2,TimReta3,TimReta4"); break; //case 20: blockDescs=F("Timing Retardation,Timing Retardation,Timing Retardation,Timing Retardation"); break;
+      case 20: blockDescs=F("Knock 1-4,Knock 1-4,Knock 1-4,Knock 1-4"); break; //case 20: blockDescs=F("Timing Retardation,Timing Retardation,Timing Retardation,Timing Retardation"); break;
       case 22: blockDescs=F("Engine Speed,Engine Load,Timing Retardation,Timing Retardation"); break;
       case 23: blockDescs=F("Engine Speed,Engine Load,Timing Retardation,Timing Retardation"); break;
       case 26: blockDescs=F("Voltage,Voltage,Voltage,Voltage"); break;
       case 28: blockDescs=F("Engine Speed,Engine Load,Coolant,Result"); break;
       case 30: blockDescs=F("Bank 1,Bank 1"); break;
       case 31: blockDescs=F("LambdDes,LambdAct"); break; // case 31: blockDescs=F("Lambda Control,Lambda Control"); break;
-      case 32: blockDescs=F("Adaptation (Idle),Adaptation (Partial)"); break;
+      case 32: blockDescs=F("Trims"); break;
       case 33: blockDescs=F("Lambda Control,Sensor Voltage"); break;
       case 34: blockDescs=F("Engine Speed,Catalytic Converter,Dynamic Factor,Result"); break;
       case 36: blockDescs=F("Sensor Voltage,Result"); break;
@@ -277,10 +277,10 @@ String KWP::getBlockDesc(uint8_t addr, int block){
       case 111: blockDescs=F("RPM Range 1,RPM Range 2,RPM Range 3,RPM Range 4"); break;
       case 113: blockDescs=F("Engine Speed,Engine Load,Throttle Valve Angle,Athmospheric"); break;
       case 114: blockDescs=F("Engine Load,Engine Load,Engine Load,Wastegate (N75)"); break;
-      case 115: blockDescs=F("Engine  speed,Load,BoostDes,BoostAct"); break; //case 115: blockDescs=F("Engine Speed,Engine Load,Boost Pressure,Boost Pressure"); break;
+      case 115: blockDescs=F("Engine Speed,Load,BoostDes,BoostAct"); break; //case 115: blockDescs=F("Engine Speed,Engine Load,Boost Pressure,Boost Pressure"); break;
       case 116: blockDescs=F("Engine Speed,Fuel Temp.,Coolant Temp.,Intake Air Temp."); break;
       case 117: blockDescs=F("Engine Speed,Accel. Pedal Pos.,Throttle Valve Angle,Boost Pressure"); break;
-      case 118: blockDescs=F("Engine  speed,IAT,WGTE N75,Boost"); break; //case 118: blockDescs=F("Engine Speed,Intake Air,Wastegate (N75),Boost Pressure"); break;
+      case 118: blockDescs=F("Engine Speed,IAT,WGTE N75,Boost"); break; //case 118: blockDescs=F("Engine Speed,Intake Air,Wastegate (N75),Boost Pressure"); break;
       case 119: blockDescs=F("Engine Speed,Charge Limit,Wastegate (N75),Boost Pressure"); break;
       case 120: blockDescs=F("Engine Speed,Torque specified,Engine Torque,Traction Control"); break;
       case 122: blockDescs=F("Engine Speed,Engine Load,Engine Load,Status"); break;
@@ -481,3 +481,4 @@ bool KWP::readConnectBlocks() {
   Serial.println(info);
   return true;
 }
+

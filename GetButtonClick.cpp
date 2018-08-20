@@ -19,9 +19,9 @@
 
 #include "GetButtonClick.h"
 
-//StalkPushUpButton.debounceTime   = 100;   // Debounce timer in ms
-//StalkPushUpButton.multiclickTime = 1500;  // Time limit for multi clicks
-//StalkPushUpButton.longClickTime  = 5000; // time until "held-down clicks" register
+//stalkPushUpButton.debounceTime   = 100;   // Debounce timer in ms
+//stalkPushUpButton.multiclickTime = 1500;  // Time limit for multi clicks
+//stalkPushUpButton.longClickTime  = 5000; // time until "held-down clicks" register
 
 GetButtonClick::GetButtonClick(uint8_t buttonPin)
 {
@@ -111,4 +111,5 @@ void GetButtonClick::Update()
 
   _lastState = _btnState;
 }
+
 
